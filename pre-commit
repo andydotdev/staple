@@ -1,15 +1,25 @@
 #!/bin/bash
 
-# This ensures all executables build and all tests pass before a commit
-# goes through.
+# This hook ensures that tests pass and the linter does not generate any
+# error-level errors.
 
 set -v
 set -e
 
+if [ `which go` == "" ]; then
+    echo \"go\" command is required.
+    exit 1
+fi
+
+if [ `which golangci-lint` == "" ]; then
+    echo \"golangci-lint\" command is required.
+    exit 1
+fi
+
 CWD=`pwd`
 
-go test
-./gml .
+go test ./...
+go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.56.2 run ./...
 
 echo Build succeeds.
 exit 0

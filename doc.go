@@ -1,38 +1,28 @@
 /*
-
-Package suture provides Erlang-like supervisor trees.
+Package staple provides Erlang-like supervisor trees.
 
 This implements Erlang-esque supervisor trees, as adapted for Go. This
 is an industrial-strength, tested library deployed into hostile
 environments, not just a proof of concept or a toy.
 
-If you are reading this, you are reading the documentation for the v3
-version, which is not the latest. If you want the latest v4,
-be sure to be using github.com/thejerf/suture/v4. This rewrites the
-API to be in terms of contexts.
+Why use Staple?
 
-Supervisor Tree -> SuTree -> suture -> holds your code together when it's
-trying to fall apart.
+  - You want to write bullet-resistant services that will remain available
+    despite unforeseen failure.
+  - You need the code to be smart enough not to consume 100% of the CPU
+    restarting things.
+  - You want to easily compose multiple such services in one program.
+  - You want the Erlang programmers to stop lording their supervision
+    trees over you.
 
-Why use Suture?
+Staple has 100% test coverage, and is golint clean.
 
- * You want to write bullet-resistant services that will remain available
-   despite unforeseen failure.
- * You need the code to be smart enough not to consume 100% of the CPU
-   restarting things.
- * You want to easily compose multiple such services in one program.
- * You want the Erlang programmers to stop lording their supervision
-   trees over you.
+A blog post describing the design decisions of rhe intial proect is
+available at http://www.jerf.org/iri/post/2930 .
 
-Suture has 100% test coverage, and is golint clean. This doesn't prove it
-free of bugs, but it shows I care.
+# Using Staple
 
-A blog post describing the design decisions is available at
-http://www.jerf.org/iri/post/2930 .
-
-Using Suture
-
-To idiomatically use Suture, create a Supervisor which is your top level
+To idiomatically use Staple, create a Supervisor which is your top level
 "application" supervisor. This will often occur in your program's "main"
 function.
 
@@ -54,6 +44,5 @@ you've defined.
 
 See the Example for an example, using a simple service that serves out
 incrementing integers.
-
 */
-package suture
+package staple

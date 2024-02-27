@@ -1,4 +1,4 @@
-package suture
+package staple
 
 // sum type pattern for type-safe message passing; see
 // http://www.jerf.org/iri/post/2917
@@ -11,14 +11,14 @@ type listServices struct {
 	c chan []Service
 }
 
-func (ls listServices) isSupervisorMessage() {}
+func (listServices) isSupervisorMessage() {}
 
 type removeService struct {
 	id           serviceID
 	notification chan struct{}
 }
 
-func (rs removeService) isSupervisorMessage() {}
+func (removeService) isSupervisorMessage() {}
 
 func (s *Supervisor) sync() {
 	select {
@@ -27,36 +27,35 @@ func (s *Supervisor) sync() {
 	}
 }
 
-type syncSupervisor struct {
-}
+type syncSupervisor struct{}
 
-func (ss syncSupervisor) isSupervisorMessage() {}
+func (syncSupervisor) isSupervisorMessage() {}
 
-func (s *Supervisor) fail(id serviceID, err interface{}, stacktrace []byte) {
+func (s *Supervisor) fail(id serviceID, panicVal interface{}, stacktrace []byte) {
 	select {
-	case s.control <- serviceFailed{id, err, stacktrace}:
+	case s.control <- serviceFailed{id, panicVal, stacktrace}:
 	case <-s.liveness:
 	}
 }
 
 type serviceFailed struct {
 	id         serviceID
-	err        interface{}
+	panicVal   interface{}
 	stacktrace []byte
 }
 
-func (sf serviceFailed) isSupervisorMessage() {}
+func (serviceFailed) isSupervisorMessage() {}
 
-func (s *Supervisor) serviceEnded(id serviceID, complete bool) {
-	s.sendControl(serviceEnded{id, complete})
+func (s *Supervisor) serviceEnded(id serviceID, err error) {
+	s.sendControl(serviceEnded{id, err})
 }
 
 type serviceEnded struct {
-	id       serviceID
-	complete bool
+	id  serviceID
+	err error
 }
 
-func (s serviceEnded) isSupervisorMessage() {}
+func (serviceEnded) isSupervisorMessage() {}
 
 // added by the Add() method
 type addService struct {
@@ -65,19 +64,18 @@ type addService struct {
 	response chan serviceID
 }
 
-func (as addService) isSupervisorMessage() {}
+func (addService) isSupervisorMessage() {}
 
 type stopSupervisor struct {
 	done chan UnstoppedServiceReport
 }
 
-func (ss stopSupervisor) isSupervisorMessage() {}
+func (stopSupervisor) isSupervisorMessage() {}
 
-func (s *Supervisor) panic() {
-	s.control <- panicSupervisor{}
-}
+// func (s *Supervisor) panic() {
+// 	s.control <- panicSupervisor{}
+// }
 
-type panicSupervisor struct {
-}
+// type panicSupervisor struct{}
 
-func (ps panicSupervisor) isSupervisorMessage() {}
+// func (panicSupervisor) isSupervisorMessage() {}

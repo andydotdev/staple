@@ -1,4 +1,4 @@
-package suture
+package staple
 
 import (
 	"context"
@@ -524,7 +524,7 @@ func TestPassNoContextToSupervisor(t *testing.T) {
 func TestNilSupervisorPanicsAsExpected(t *testing.T) {
 	t.Parallel()
 	s := (*Supervisor)(nil)
-	if !panicsWith(s.Serve, "with a nil *suture.Supervisor") {
+	if !panicsWith(s.Serve, "with a nil *staple.Supervisor") {
 		t.Fatal("nil supervisor doesn't panic as expected")
 	}
 }
@@ -797,36 +797,6 @@ func eventually(t *testing.T, s *Supervisor, state uint8, interval time.Duration
 	}
 }
 
-func TestShim(t *testing.T) {
-	t.Parallel()
-	s := NewSimple("TEST: TestShim")
-	ctx, cancel := context.WithCancel(context.Background())
-	s.ServeBackground(ctx)
-
-	os := &OldService{
-		make(chan struct{}),
-		make(chan struct{}),
-		make(chan struct{}),
-		make(chan struct{}),
-	}
-	s.Add(AsService(os))
-
-	// Old service can return as normal and gets restarted; only the
-	// first one of these works if it doesn't get restarted.
-	os.doReturn <- struct{}{}
-	os.doReturn <- struct{}{}
-	// without this, the cancel command below can end up trying to stop
-	// this service at a bad time
-	os.sync <- struct{}{}
-
-	go func() {
-		cancel()
-	}()
-
-	// old-style service stops as expected.
-	<-os.stopping
-}
-
 func TestEverMultistarted(t *testing.T) {
 	t.Parallel()
 	t.Skip("this test produces a fatal, non-recoverable runtime error and should only enabled for demoing purposes")
@@ -870,8 +840,12 @@ func TestAddAfterStopping(t *testing.T) {
 
 // A test service that can be induced to fail, panic, or hang on demand.
 func NewService(name string) *FailableService {
-	return &FailableService{name, make(chan bool), make(chan int),
-		make(chan bool), make(chan bool, 1), 0, sync.Mutex{}, false}
+	return &FailableService{
+		name, make(chan bool), make(chan int),
+		make(chan bool), make(chan bool, 1), 0,
+		sync.Mutex{},
+		false,
+	}
 }
 
 type FailableService struct {

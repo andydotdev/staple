@@ -1,16 +1,18 @@
-package suture
+package staple
 
 import (
 	"fmt"
+	"log/slog"
 )
 
-// Event defines the interface implemented by all events Suture will
+// Event defines the interface implemented by all events Staple will
 // generate.
 //
 // Map will return a map with the details of the event serialized into a
 // map[string]interface{}, with only the values suitable for serialization.
 type Event interface {
 	fmt.Stringer
+	slog.Leveler
 	Type() EventType
 	Map() map[string]interface{}
 }
@@ -41,7 +43,7 @@ type EventStopTimeout struct {
 	ServiceName    string      `json:"service"`
 }
 
-func (e EventStopTimeout) Type() EventType {
+func (EventStopTimeout) Type() EventType {
 	return EventTypeStopTimeout
 }
 
@@ -60,6 +62,10 @@ func (e EventStopTimeout) Map() map[string]interface{} {
 	}
 }
 
+func (EventStopTimeout) Level() slog.Level {
+	return slog.LevelWarn
+}
+
 type EventServicePanic struct {
 	Supervisor       *Supervisor `json:"-"`
 	SupervisorName   string      `json:"supervisor_name"`
@@ -72,7 +78,7 @@ type EventServicePanic struct {
 	Stacktrace       string      `json:"stacktrace"`
 }
 
-func (e EventServicePanic) Type() EventType {
+func (EventServicePanic) Type() EventType {
 	return EventTypeServicePanic
 }
 
@@ -87,7 +93,7 @@ func (e EventServicePanic) String() string {
 			e.Restarting,
 		),
 		e.PanicMsg,
-		string(e.Stacktrace),
+		e.Stacktrace,
 	)
 }
 
@@ -103,6 +109,10 @@ func (e EventServicePanic) Map() map[string]interface{} {
 	}
 }
 
+func (EventServicePanic) Level() slog.Level {
+	return slog.LevelError
+}
+
 type EventServiceTerminate struct {
 	Supervisor       *Supervisor `json:"-"`
 	SupervisorName   string      `json:"supervisor_name"`
@@ -114,7 +124,7 @@ type EventServiceTerminate struct {
 	Err              interface{} `json:"error_msg"`
 }
 
-func (e EventServiceTerminate) Type() EventType {
+func (EventServiceTerminate) Type() EventType {
 	return EventTypeServiceTerminate
 }
 
@@ -136,6 +146,10 @@ func (e EventServiceTerminate) Map() map[string]interface{} {
 	}
 }
 
+func (EventServiceTerminate) Level() slog.Level {
+	return slog.LevelError
+}
+
 func serviceFailureString(supervisor, service string, currentFailures, failureThreshold float64, restarting bool) string {
 	return fmt.Sprintf(
 		"%s: Failed service '%s' (%f failures of %f), restarting: %#v",
@@ -152,7 +166,7 @@ type EventBackoff struct {
 	SupervisorName string      `json:"supervisor_name"`
 }
 
-func (e EventBackoff) Type() EventType {
+func (EventBackoff) Type() EventType {
 	return EventTypeBackoff
 }
 
@@ -166,12 +180,16 @@ func (e EventBackoff) Map() map[string]interface{} {
 	}
 }
 
+func (EventBackoff) Level() slog.Level {
+	return slog.LevelInfo
+}
+
 type EventResume struct {
 	Supervisor     *Supervisor `json:"-"`
 	SupervisorName string      `json:"supervisor_name"`
 }
 
-func (e EventResume) Type() EventType {
+func (EventResume) Type() EventType {
 	return EventTypeResume
 }
 
@@ -183,4 +201,8 @@ func (e EventResume) Map() map[string]interface{} {
 	return map[string]interface{}{
 		"supervisor_name": e.SupervisorName,
 	}
+}
+
+func (EventResume) Level() slog.Level {
+	return slog.LevelInfo
 }

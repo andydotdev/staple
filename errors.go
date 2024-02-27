@@ -1,12 +1,6 @@
-// +build go1.13
-
-package suture
+package staple
 
 import "errors"
-
-func isErr(err error, target error) bool {
-	return errors.Is(err, target)
-}
 
 // ErrDoNotRestart can be returned by a service to voluntarily not
 // be restarted. Any error that will compare with errors.Is as being this
