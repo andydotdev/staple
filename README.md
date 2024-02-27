@@ -28,28 +28,6 @@ Special thanks to [thejerf](https://github.com/thejerf) for a great package.
 When in doubt, use that instead, as this package primariliy exists so I can
 tweak it ever so slightly to suit my needs.
 
-
-Code Signing
-------------
-
-Starting with the commit after ac7cf8591b, I will be signing this repository
-with the ["jerf" keybase account](https://keybase.io/jerf). If you are viewing
-this repository through GitHub, you should see the commits as showing as
-"verified" in the commit view.
-
-(Bear in mind that due to the nature of how git commit signing works, there
-may be runs of unverified commits; what matters is that the top one is signed.)
-
-Aspiration
-----------
-
-One of the big wins the Erlang community has with their pervasive OTP
-support is that it makes it easy for them to distribute libraries that
-easily fit into the OTP paradigm. It ought to someday be considered a good
-idea to distribute libraries that provide some sort of supervisor tree
-functionality out of the box. It is possible to provide this functionality
-without explicitly depending on the Staple library.
-
 Changelog
 ---------
 
