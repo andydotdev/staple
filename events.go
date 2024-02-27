@@ -51,7 +51,7 @@ func (e EventStopTimeout) String() string {
 	return fmt.Sprintf(
 		"%s: Service %s failed to terminate in a timely manner",
 		e.Supervisor,
-		e.Service,
+		e.ServiceName,
 	)
 }
 
