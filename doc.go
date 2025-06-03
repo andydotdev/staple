@@ -17,7 +17,7 @@ Why use Staple?
 
 Staple has 100% test coverage, and is golint clean.
 
-A blog post describing the design decisions of rhe intial proect is
+A blog post describing the design decisions of rhe initial proect is
 available at http://www.jerf.org/iri/post/2930 .
 
 # Using Staple

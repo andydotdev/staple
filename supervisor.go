@@ -468,7 +468,7 @@ func (s *Supervisor) UnstoppedServiceReport() (UnstoppedServiceReport, error) {
 	return s.unstoppedServiceReport, nil
 }
 
-func (s *Supervisor) handleFailedService(ctx context.Context, id serviceID, err interface{}, stacktrace []byte, panic bool) {
+func (s *Supervisor) handleFailedService(ctx context.Context, id serviceID, err interface{}, stacktrace []byte, didPanic bool) {
 	now := s.getNow()
 
 	if s.lastFail.IsZero() {
@@ -504,7 +504,7 @@ func (s *Supervisor) handleFailedService(ctx context.Context, id serviceID, err 
 		} else {
 			s.restartQueue = append(s.restartQueue, id)
 		}
-		if panic {
+		if didPanic {
 			s.spec.EventHook(EventServicePanic{
 				Supervisor:       s,
 				SupervisorName:   s.Name,

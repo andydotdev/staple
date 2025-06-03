@@ -1,13 +1,13 @@
+# Refer to golangci-lint's example config file for more options and information:
+# https://github.com/golangci/golangci-lint/blob/master/.golangci.reference.yml
+
 run:
   timeout: 5m
   modules-download-mode: readonly
-  skip-files:
-    - ".*\\.pb\\.go"
-    - ".*_test\\.go"
 
 linters:
   enable:
-    # - goimports
+    - goimports
     - revive
     - govet
     - nakedret
@@ -15,7 +15,7 @@ linters:
     - unparam
     - unused
     - gosimple
-    # - misspell
+    - misspell
     - unconvert
     - ineffassign
   disable:
@@ -23,20 +23,34 @@ linters:
     - errcheck
 
 linters-settings:
+  govet:
+    settings:
+      printf:
+        funcs:
+          - (github.com/sirupsen/logrus.FieldLogger).Debugf
+          - (github.com/sirupsen/logrus.FieldLogger).Infof
+          - (github.com/sirupsen/logrus.FieldLogger).Printf
+          - (github.com/sirupsen/logrus.FieldLogger).Warnf
+          - (github.com/sirupsen/logrus.FieldLogger).Warningf
+          - (github.com/sirupsen/logrus.FieldLogger).Errorf
+          - (github.com/sirupsen/logrus.FieldLogger).Fatalf
+          - (github.com/sirupsen/logrus.FieldLogger).Panicf
+    enable:
+      - atomicalign
   revive:
     rules:
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#add-constant
-      - name: add-constant
-        severity: warning
-        disabled: false
-        arguments:
-          - maxLitCount: "5"
-            allowStrs: '""'
-            allowInts: "0,1,2"
-            allowFloats: "0.5,.5,0.0,0.,1.0,1.,2.0,2."
-      - name: deep-exit
-        severity: error
-        disabled: false
+      # - name: add-constant
+      #   severity: warning
+      #   disabled: false
+      #   arguments:
+      #     - maxLitCount: "3"
+      #       allowStrs: '""'
+      #       allowInts: "0,1,2"
+      #       allowFloats: "0.0,0.,1.0,1.,2.0,2."
+      # - name: deep-exit
+      #   severity: warning
+      #   disabled: false
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#defer
       - name: defer
         severity: warning
@@ -69,14 +83,14 @@ linters-settings:
           - "preserveScope"
           - "checkPrivateReceivers"
           - "sayRepetitiveInsteadOfStutters"
-      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#flag-parameter
-      - name: flag-parameter
-        severity: warning
-        disabled: true
-      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#get-return
-      - name: get-return
-        severity: error
-        disabled: false
+      # # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#flag-parameter
+      # - name: flag-parameter
+      #   severity: warning
+      #   disabled: false
+      # # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#get-return
+      # - name: get-return
+      #   severity: error
+      #   disabled: false
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#identical-branches
       - name: identical-branches
         severity: error
@@ -125,16 +139,20 @@ linters-settings:
         disabled: false
         arguments:
           - "preserveScope"
-      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unused-receiver
-      - name: unused-receiver
-        severity: warning
-        disabled: false
-        arguments:
-          - allowRegex: "^_"
+      # # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unused-receiver
+      # - name: unused-receiver
+      #   severity: warning
+      #   disabled: false
+      #   arguments:
+      #     - allowRegex: "^_"
 issues:
   exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
+  exclude:
+    - 'declaration of "(err|ctx)" shadows declaration at'
+  exclude-files:
+    - ".*_test\\.go"
 #  exclude-rules:
 #    - path: _test.go
 #      linters:

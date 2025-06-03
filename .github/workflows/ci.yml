@@ -1,5 +1,8 @@
 name: ci
 on:
+  push:
+    branches:
+      - 'main'  
   pull_request:
   workflow_dispatch:
 permissions:
@@ -23,6 +26,8 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: stable
+      - name: govet
+        run: go vet
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
