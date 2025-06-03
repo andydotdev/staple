@@ -369,20 +369,22 @@ func (s *Supervisor) Serve(ctx context.Context) error {
 				_, monitored := s.services[msg.id]
 				if monitored {
 					cancel := s.cancellations[msg.id]
-					switch {
-					case errors.Is(msg.err, ErrDoNotRestart) || errors.Is(msg.err, context.Canceled) || errors.Is(msg.err, context.DeadlineExceeded):
+					if errors.Is(msg.err, ErrDoNotRestart) || ctx.Err() != nil {
 						delete(s.services, msg.id)
 						delete(s.cancellations, msg.id)
 						go cancel()
-					case errors.Is(msg.err, ErrTerminateSupervisorTree):
+					} else if errors.Is(msg.err, ErrTerminateSupervisorTree) {
 						s.stopSupervisor()
 						if s.spec.DontPropagateTermination {
 							return ErrDoNotRestart
-						} else {
-							return msg.err
 						}
-					default:
-						s.handleFailedService(ctx, msg.id, msg.err, nil, false)
+						return msg.err
+					} else {
+						err := msg.err
+						if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+							err = fmt.Errorf("downstream context canceled, restarting service: %w", msg.err)
+						}
+						s.handleFailedService(ctx, msg.id, err, nil, false)
 					}
 				}
 			case addService:
@@ -407,9 +409,6 @@ func (s *Supervisor) Serve(ctx context.Context) error {
 			case syncSupervisor:
 				// this does nothing on purpose; its sole purpose is to
 				// introduce a sync point via the channel receive
-				// case panicSupervisor:
-				// 	// used only by tests
-				// 	panic("Panicking as requested!")
 			}
 		case serviceEnded := <-s.notifyServiceDone:
 			delete(s.servicesShuttingDown, serviceEnded)

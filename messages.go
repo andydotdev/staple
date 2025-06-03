@@ -71,11 +71,3 @@ type stopSupervisor struct {
 }
 
 func (stopSupervisor) isSupervisorMessage() {}
-
-// func (s *Supervisor) panic() {
-// 	s.control <- panicSupervisor{}
-// }
-
-// type panicSupervisor struct{}
-
-// func (panicSupervisor) isSupervisorMessage() {}
